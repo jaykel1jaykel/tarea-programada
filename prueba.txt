@@ -1,0 +1,6 @@
+int , entero
+str , datos
+return , lver
+int , entero
+str , datos
+return , devolver
