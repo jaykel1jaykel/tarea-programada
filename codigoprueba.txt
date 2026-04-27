@@ -1,0 +1,24 @@
+def mostrarCercano(ptupla):
+    resultado = 0
+    str
+    str
+    restas = 0
+    restas1 = max(ptupla)
+    n = ptupla[0]
+    restasact = 0
+    ptupla = ptupla[1:]
+    for i in ptupla:
+        restas = abs(n-i)
+        int
+        int(vyf)
+        str
+        str
+        str
+        if restas<restas1 :
+            resultado = i
+            restasact = i
+        elif restas == restas1:
+            if restasact > i:
+                resultado = i
+        restas1 = restas
+    return resultado
