@@ -10,7 +10,7 @@ def mostrarCercano(ptupla):
     for i in ptupla:
         restas = abs(n-i)
         int
-        int(vyf)
+        int (vyf)
         str
         str
         str

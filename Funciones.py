@@ -3,136 +3,123 @@
 # Ultima modificacion:
 # version de python:
 from datetime import datetime
-fecha = datetime.now()
-hora = datetime.now().time()
-tuplabita = (str(fecha)+"_"+str(hora))
+
 lista = []
 bitacora = []
-# Funciones principales para la tarea programada de traducir codigo
+
+# Funciones principales
+
 def limpiar_linea(linea):
     return linea.strip()
-
 
 def procesar_linea(linea, separador):
     if linea == "":
         return None
-    
     if separador not in linea:
         print("Línea inválida (sin separador):", linea)
         return None
-    
     partes = linea.split(separador)
-    
     if len(partes) != 2:
         print("Línea mal formada:", linea)
         return None
-    
     token_original = partes[0].strip()
     token_traducido = partes[1].strip()
-    
     return (token_original, token_traducido)
 
-
-def cargarTokens(pnombre, pseparador):
+def cargarTokens():
     global lista
-    
+    pnombre = input("Ingrese el nombre del archivo donde se encuentran los tokens: ")
+    pseparador = input("Ingrese el separador: ")
     with open(pnombre, "r") as nomarchivo:
         for linea in nomarchivo:
             linea = limpiar_linea(linea)
             tupla = procesar_linea(linea, pseparador)
             if tupla is None:
                 continue
-            # Manejo de duplicados
             reemplazado = False
             for i in range(len(lista)):
                 if lista[i][0] == tupla[0]:
-                    print("Token repetido, se reemplaza:", lista[i],"por",tupla)
+                    print("Token repetido, se reemplaza:", lista[i], "por", tupla)
                     lista[i] = tupla
                     reemplazado = True
                     break
-            
             if not reemplazado:
                 lista.append(tupla)
-    
+    bitacora.append((datetime.now(), "Se cargaron tokens desde archivo"))
     return lista
 
-
-# Mostrar tokens cargados
-def mostrarTokens(tokens):
-    global bitacora, tuplabita
-    for i in tokens:
-        print(i[0],"=",i[1])
-    bitacora.append((tuplabita,"se muestraron los tokens cargados"))
+def mostrarTokens():
+    global lista, bitacora
+    for i in lista:
+        print(i[0], "=", i[1])
+    bitacora.append((datetime.now(), "Se mostraron los tokens"))
     return
 
-# Agregar o modificar tokens
 def separarTokens(cadena, separador):
     lista_tuplas = []
-    
-    partes = cadena.split(",")  # separa cada par
-    
+    partes = cadena.split(",")
     for parte in partes:
         parte = parte.strip()
-        
         if separador not in parte:
             print("Formato inválido:", parte)
             continue
-        
         datos = parte.split(separador)
-        
         if len(datos) != 2:
             print("Par mal formado:", parte)
             continue
-        
         token_original = datos[0].strip()
         token_traducido = datos[1].strip()
-        
         lista_tuplas.append((token_original, token_traducido))
-    
     return lista_tuplas
-print(separarTokens("int -> entero, str -> hilera", "->"))
 
-
-# Def para guardar tokens en nomarchivo
-def GuardarTokens():
-    global lista, bitacora, tuplabita
-    nomarchivo = input("Ingrese el nombre del nombre del archivo: ")
-    with open(nomarchivo,"w") as archivo :
+def guardarTokens():
+    global lista, bitacora
+    nomarchivo = input("Ingrese el nombre del archivo: ")
+    with open(nomarchivo, "w") as archivo:
         for token in lista:
-            linea = token[0]+"->"+token[1]+"\n"
+            linea = token[0] + " -> " + token[1] + "\n"
             archivo.write(linea)
-    bitacora.append((tuplabita," Se guardaron los tokens"))
+    bitacora.append((datetime.now(), "Se guardaron los tokens"))
     return
 nomarchivo = "codigoprueba.txt"
-# def generar reporte .csv
+
+# def generar csv
+def separar_palabras(texto):
+    palabras = []
+    palabra_actual = ""
+    for caracter in texto:
+        if caracter.isalnum():  # letras o números
+            palabra_actual += caracter
+        else:
+            if palabra_actual != "":
+                palabras.append(palabra_actual)
+                palabra_actual = ""
+    # agregar última palabra si quedó algo
+    if palabra_actual != "":
+        palabras.append(palabra_actual)
+    return palabras
+
 def generarCSV(CSV1):
-    global lista, nomarchivo, bitacora, tuplabita
-    contador = 0
-    with open(CSV1,"w") as CSV:
+    global lista, nomarchivo, bitacora
+    with open(nomarchivo, "r") as archivo:
+        lineas = archivo.readlines()
+    with open(CSV1, "w") as CSV:
         for tokentra in lista:
             contador = 0
-            archivo = open(nomarchivo,"r")
-            for linea in archivo:
-                if tokentra[0] in linea:
+            for linea in lineas:
+                palabras = separar_palabras(linea)
+                if tokentra[0] in palabras:
                     contador += 1
-            nuevalinea = tokentra[0]+","+tokentra[1]+" = "+str(contador)+"\n"
+            nuevalinea = tokentra[0] + "," + tokentra[1] + "," + str(contador) + "\n"
             CSV.write(nuevalinea)
-    bitacora.append((tuplabita,"Se genero el archivo .csv"))
-    return
- #Def Bicatora
+    bitacora.append((datetime.now(), "Se generó el archivo CSV"))
 
 def crearBitacora():
     global bitacora
     with open("bitacora.txt", "w") as archivo:
         for i in bitacora:
-            lineas = i[0]+" "+i[1]+"\n"
-            archivo.write(lineas)
+            linea = str(i[0]) + " " + i[1] + "\n"
+            archivo.write(linea)
     return
 
-
-
-
-
-cargarTokens("prueba.txt",",")
-generarCSV("save.csv")
-crearBitacora()
+guardarTokens()

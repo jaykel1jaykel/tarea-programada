@@ -1,3 +1,0 @@
-int->entero
-str->datos
-return->devolver
