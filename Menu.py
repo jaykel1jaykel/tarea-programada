@@ -24,7 +24,8 @@ def menu():
         menu()
     elif opcion == "8":
         subopcion = input("Ingrese su opcion para buscar en la bitacora: \n 1. Buscar por fecha \n 2. Buscar por palabras claves")
-        crearBitacora
+        if subopcion == "1":
+            buscarConFecha()
     elif opcion == "9":
         print("Saliendo...")
         return
