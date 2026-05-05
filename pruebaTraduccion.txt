@@ -1,0 +1,9 @@
+definicion sumarDigitosMultiplos(n, m):
+    res = 0
+    n1 = 0
+    mientras n>0:
+        n1 = n%10
+        si n1%m == 0:
+            res += n1 
+        n //= 10 
+    devolver res 

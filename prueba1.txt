@@ -1,0 +1,4 @@
+int, enteros
+return, returnar
+print,pintar
+in, en

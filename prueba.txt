@@ -6,3 +6,5 @@ str , datos
 return , devolver
 if , si
 elif , si si
+while, mientras
+def, definicion

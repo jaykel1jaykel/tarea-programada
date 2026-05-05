@@ -1,4 +1,37 @@
-2026-04-27 17:29:49.556398 Se cargaron tokens desde archivo
-2026-04-27 17:30:03.246846 Se guardaron los tokens
-2026-04-27 17:30:03.248947 Se mostraron los tokens
-2026-04-27 17:30:03.250274 Se generó el archivo CSV
+2026-05-01 12:18:45.273231 Se cargaron tokens desde archivo
+2026-05-01 12:21:08.773789 Se mostraron los tokens
+2026-05-01 12:21:18.599221 Se guardaron los tokens
+2026-05-01 12:21:29.184324 Se generó el archivo CSV
+2026-05-01 12:21:55.338536 Se generó el archivo CSV
+2026-05-01 14:53:52.806754 Se cargaron tokens desde archivo
+2026-05-01 14:53:56.389494 Se mostraron los tokens
+2026-05-01 14:54:07.159671 Se guardaron los tokens
+2026-05-01 14:54:15.401081 Se genero el archivo CSV
+2026-05-04 20:26:35.270533 Se cargaron tokens desde archivo
+2026-05-04 20:28:14.102157 Se cargaron tokens desde archivo
+2026-05-04 20:28:14.102157 Se cargaron tokens desde archivo
+2026-05-04 20:29:09.964753 Se cargaron tokens desde archivo
+2026-05-04 20:29:09.964753 Se cargaron tokens desde archivo
+2026-05-04 20:31:47.486230 Se cargaron tokens desde archivo
+2026-05-04 20:31:47.486230 Se cargaron tokens desde archivo
+2026-05-04 20:35:21.266595 Se genero el archivo CSV
+2026-05-04 20:37:25.944751 Se genero el archivo CSV
+2026-05-04 20:38:08.202207 Se genero el archivo CSV
+2026-05-04 21:16:50.532828 Se cargaron tokens desde archivo
+2026-05-04 21:19:15.016985 Se cargaron tokens desde archivo
+2026-05-04 21:19:15.016985 Se cargaron tokens desde archivo
+2026-05-04 21:21:33.569315 Se mostraron los tokens
+2026-05-04 21:21:33.569315 Se mostraron los tokens
+2026-05-04 21:21:55.828355 Se mostraron los tokens
+2026-05-04 21:24:19.408778 Se cargaron tokens desde archivo
+2026-05-04 21:26:28.529286 Se agregaron o modificaron tokens
+2026-05-04 21:34:31.558581 Se cargaron tokens desde archivo
+2026-05-04 21:34:48.536750 Se cargaron tokens desde archivo
+2026-05-04 21:34:48.536750 Se cargaron tokens desde archivo
+2026-05-04 21:36:22.711584 Se mostraron los tokens
+2026-05-04 21:36:22.711584 Se mostraron los tokens
+2026-05-04 21:51:21.599623 Se cargaron tokens desde archivo
+2026-05-04 21:51:21.599623 Se cargaron tokens desde archivo
+2026-05-04 21:52:16.397867 Se mostraron los tokens
+2026-05-04 21:52:16.397867 Se mostraron los tokens
+2026-05-04 21:52:54.328705 Se mostraron los tokens
