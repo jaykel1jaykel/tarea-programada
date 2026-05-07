@@ -1,5 +1,0 @@
-int -> entero
-str -> datos
-return -> devolver
-if -> si
-elif -> si si

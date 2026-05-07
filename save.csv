@@ -1,7 +1,0 @@
-int,entero,0
-str,datos,0
-return,devolver,1
-if,si,1
-elif,si si,0
-while,mientras,1
-def,definicion,1
