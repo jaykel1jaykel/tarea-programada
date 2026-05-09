@@ -1,8 +1,2 @@
-int,entero
-float, flotante
-print, imprimir
-return, returnar
-if, si
-else, no
-elif, si si
-def, deficion
+int,si
+if,int

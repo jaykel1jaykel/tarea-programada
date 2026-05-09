@@ -1,0 +1,5 @@
+int -> entero
+if -> si
+while -> mientras
+return -> retornar
+print -> imprimir
