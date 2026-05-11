@@ -29,7 +29,7 @@ def menu():
             crearBitacora(bitacora)
             continue
         elif opcion == "7":
-            "generarHTML()"
+            tokens,bitacora =generarHTMLAux(tokens,bitacora)
             crearBitacora(bitacora)
             continue
         elif opcion == "8":

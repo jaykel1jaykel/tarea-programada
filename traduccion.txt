@@ -6,4 +6,4 @@ def sumarDigitosMultiplos(n, m):
         si n1%m == 0:
             res += n1 
         n //= 10 
-    retornar res 
+    debolver res 

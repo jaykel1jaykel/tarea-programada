@@ -1,4 +1,4 @@
 int -> entero
-if -> si
+if -> no
 while -> mientras
-return -> retornar
+return -> devolver

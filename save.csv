@@ -1,5 +1,4 @@
 int,entero,0
 if,si,1
 while,mientras,1
-return,retornar,1
-print,imprimir,0
+return,debolver,1

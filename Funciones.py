@@ -4,11 +4,12 @@
 # version de python:
 ### Nota: mejorar el nombre de las variables
 from datetime import datetime
+import html
 
 # Funciones principales
 # def para cargar los tokens
 
-def procesar_linea(linea, separador):
+def procesarLinea(linea, separador):
     """
     Funcionamiento: Procesa una línea del archivo de tokens, extrayendo el token original y su traducción.
     Entradas:
@@ -47,8 +48,7 @@ def cargarTokens(pnombre, pseparador,tokens,bitacora):
     """
     with open(pnombre, "r") as nomarchivo:
         for linea in nomarchivo:
-            linea = linea.strip()
-            tupla = procesar_linea(linea, pseparador)
+            tupla = procesarLinea(linea, pseparador)
             if tupla is None:
                 continue
             reemplazado = False
@@ -88,9 +88,6 @@ def cargarTokensAux(tokens, bitacora):
             if separador == "":
                 print("Debe digitar un separador válido.")
                 continue
-            elif separador not in nombre:
-                print("El separador no se encuentra en el nombre del archivo, asegúrese de que sea correcto.")
-                continue
             cantidad_antes = len(tokens)
             tokens_actualizados, bitacora_actualizada = cargarTokens(nombre, separador, tokens, bitacora)
             cantidad_despues = len(tokens_actualizados)
@@ -126,7 +123,7 @@ def mostrarTokens(tokens,bitacora):
     return bitacora
 
 # agregar o actualizar tokens
-def procesar_reemplazo(tokens, original, traduccion):
+def procesarReemplazo(tokens, original, traduccion):
     """
     Funcionamiento: Procesa la adición o actualización de un token en la lista de tokens. Si el token original ya existe, se actualiza su traducción; si no existe, se agrega como un nuevo token.
     Entradas:
@@ -171,7 +168,7 @@ def agregarModificarTokens(cadena, separador, tokens, bitacora):
         for i in range(0, len(elementos), 2):
             original = elementos[i].strip()
             traduccion = elementos[i+1].strip()
-            procesar_reemplazo(tokens, original, traduccion)
+            procesarReemplazo(tokens, original, traduccion)
     else:
         partes = cadena.split(",")
         for parte in partes:
@@ -179,7 +176,7 @@ def agregarModificarTokens(cadena, separador, tokens, bitacora):
             if len(datos) == 2:
                 original = datos[0].strip()
                 traduccion = datos[1].strip()
-                procesar_reemplazo(tokens, original, traduccion)
+                procesarReemplazo(tokens, original, traduccion)
             else:
                 print(f"Advertencia: La parte '{parte}' no se pudo procesar correctamente, este token será ignorado.")
     bitacora.append((datetime.now(), "Se agregaron o modificaron los tokens"))
@@ -378,7 +375,7 @@ def traducirCodigoAux(tokens, bitacora):
             return tokens, bitacora
 
 # def generar csv
-def separar_palabras(texto):
+def separarPalabras(texto):
     """
     Funcionamiento: Separa un texto en palabras individuales, utilizando caracteres no alfanuméricos como delimitadores.
     Entradas:
@@ -419,7 +416,7 @@ def generarCSV(CSV1,nomarchivo,tokens,bitacora):
         for tokentra in tokens:
             contador = 0
             for linea in lineas:
-                palabras = separar_palabras(linea)
+                palabras = separarPalabras(linea)
                 if tokentra[0] in palabras:
                     contador += 1
             nuevalinea = tokentra[0] + "," + tokentra[1] + "," + str(contador) + "\n"
@@ -473,6 +470,135 @@ def generarCSVAux(tokens, bitacora):
             print(f"Ocurrió un error inesperado: {error}")
             return tokens, bitacora
 
+# Generar html
+
+def obtenerPalabras(archivoTraducido):
+    with open(archivoTraducido, "r", encoding="utf-8") as archivo:
+        texto = archivo.read()
+    return separarPalabras(texto)
+
+
+def contarReemplazos(listaTokens, palabras):
+    conteos = []
+    totalReemplazos = 0
+    for token in listaTokens:
+        cantidad = 0
+        for palabra in palabras:
+            if palabra == token[1]:
+                cantidad += 1
+        conteos.append((token[0], token[1], cantidad))
+        totalReemplazos += cantidad
+    return conteos, totalReemplazos
+
+def crearFilasHTML(conteos):
+    filas = ""
+    i = 0
+    for token in conteos:
+        if i % 2 == 0:
+            color = "#85a9cc"
+        else:
+            color = "#9C8FE6"
+        filas += f"""
+        <tr style="background-color:{color};">
+            <td>{html.escape(str(token[0]))}</td>
+            <td>{html.escape(str(token[1]))}</td>
+            <td>{token[2]}</td>
+        </tr>
+        """
+        i += 1
+    return filas
+
+
+def generarHTML(listaTokens, archivoTraducido, tituloReporte, bitacora):
+    inicio = datetime.now()
+    ahora = datetime.now()
+    nombreArchivo = "reporteHTML_" + ahora.strftime("%d-%m-%y_%H-%M-%S") + ".html"
+    try:
+        palabras = obtenerPalabras(archivoTraducido)
+    except FileNotFoundError:
+        print("El archivo traducido no existe.")
+        return listaTokens, bitacora
+    except UnicodeDecodeError:
+        print("No se pudo leer el archivo traducido por un problema de codificación.")
+        return listaTokens, bitacora
+    except Exception as error:
+        print(f"Ocurrió un error al leer el archivo: {error}")
+        return listaTokens, bitacora
+    conteos, totalReemplazos = contarReemplazos(listaTokens, palabras)
+    totalPalabras = len(palabras)
+    if totalPalabras > 0:
+        porcentaje = (totalReemplazos / totalPalabras) * 100
+    else:
+        porcentaje = 0
+    filasHTML = crearFilasHTML(conteos)
+    try:
+        with open(nombreArchivo, "w", encoding="utf-8") as archivo:
+            archivo.write("<!DOCTYPE html>\n")
+            archivo.write("<html lang='es'>\n")
+            archivo.write("<head>\n")
+            archivo.write("<meta charset='UTF-8'>\n")
+            archivo.write(f"<title>{html.escape(tituloReporte)}</title>\n")
+            archivo.write("</head>\n")
+            archivo.write("<body style='font-family: Arial, sans-serif;'>\n")
+            archivo.write("<h1>Reporte de Traducción</h1>\n")
+            archivo.write(f"<h2>Generado el {ahora.strftime('%d/%m/%y %H:%M:%S')}</h2>\n")
+            final = datetime.now()
+            duracion = final-inicio
+            archivo.write(f"<p><strong>Duración total:</strong> {duracion}</p>\n")
+            archivo.write(f"<p><strong>Cantidad total de reemplazos:</strong> {totalReemplazos}</p>\n")
+            archivo.write(f"<p><strong>Porcentaje de palabras reemplazadas:</strong> {porcentaje:.2f}%</p>\n")
+            archivo.write("<table border='1' style='border-collapse:collapse; text-align:center; width:100%;'>\n")
+            archivo.write("<tr style='background-color:#cccccc;'>\n")
+            archivo.write("<th>Original</th>\n")
+            archivo.write("<th>Reemplazo</th>\n")
+            archivo.write("<th>Cantidad</th>\n")
+            archivo.write("</tr>\n")
+            archivo.write(filasHTML)
+            archivo.write("</table>\n")
+            archivo.write("</body>\n")
+            archivo.write("</html>\n")
+    except PermissionError:
+        print("No tiene permisos para escribir el archivo HTML.")
+        return listaTokens, bitacora
+    except OSError:
+        print("No se pudo crear el archivo HTML.")
+        return listaTokens, bitacora
+    except Exception as error:
+        print(f"Ocurrió un error al escribir el HTML: {error}")
+        return listaTokens, bitacora
+    bitacora.append((datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), "Se generó el reporte HTML"))
+    print("Reporte HTML generado correctamente:", nombreArchivo)
+    return listaTokens, bitacora
+
+def generarHTMLAux(listaTokens, bitacora):
+    while True:
+        try:
+            if not isinstance(listaTokens, list):
+                print("Error: la lista de tokens debe ser una lista.")
+                return listaTokens, bitacora
+            if not isinstance(bitacora, list):
+                print("Error: la bitácora debe ser una lista.")
+                return listaTokens, bitacora
+            print("\n--- Generar HTML ---")
+            archivoTraducido = input("Digite el archivo traducido o CANCELAR para regresar: ").strip()
+            if archivoTraducido.upper() == "CANCELAR":
+                return listaTokens, bitacora
+            if archivoTraducido == "":
+                print("Debe digitar un archivo válido.")
+                continue
+            tituloReporte = input("Digite el título del reporte o CANCELAR para regresar: ").strip()
+            if tituloReporte.upper() == "CANCELAR":
+                return listaTokens, bitacora
+            if tituloReporte == "":
+                print("Debe digitar un título válido.")
+                continue
+            return generarHTML(listaTokens, archivoTraducido, tituloReporte, bitacora)
+        except Exception as error:
+            print(f"Ocurrió un error inesperado: {error}")
+            return listaTokens, bitacora
+        except FileNotFoundError:
+            print("El archivo no existe.")
+
 # def buscar en bitacoras
 def crearBitacora(bitacora):
     """
@@ -484,13 +610,13 @@ def crearBitacora(bitacora):
       Si el archivo no existe, se crea uno nuevo; si ya existe, se añaden los nuevos registros al final del archivo.
     """
     if bitacora != []:
-        with open("bitacora.txt", "a") as archivo:
+        with open("bitacora.txt", "a", encoding="utf-8") as archivo:
             i = bitacora[-1]
             linea = str(i[0]) + " " + i[1] + "\n"
             archivo.write(linea)
     return
 
-def buscarConFecha(fecha_buscar, bitacora):
+def buscarConFecha(fechaBuscar, bitacora):
     """
     Funcionamiento: Busca y muestra los registros de la bitácora que coincidan con una fecha específica ingresada por el usuario.
     Entradas:
@@ -504,10 +630,10 @@ def buscarConFecha(fecha_buscar, bitacora):
     """
     encontrado = False
     for i in bitacora:
-        fecha_registro = i[0].strftime("%Y-%m-%d")  # solo la fecha
-        if fecha_registro == fecha_buscar:
-            fecha_completa = i[0].strftime("%Y-%m-%d %H:%M:%S")
-            print(f"{fecha_completa} - {i[1]}")
+        fechaRegistro = i[0]  # solo la fecha
+        if fechaRegistro == fechaBuscar:
+            fechaCompleta = i[0]
+            print(f"{fechaCompleta} - {i[1]}")
             encontrado = True
     if not encontrado:
         print("No hay datos de esa fecha")
@@ -522,13 +648,13 @@ def buscarConFechaAux(bitacora):
     - print: La función no devuelve un valor, pero imprime en la consola los registros de la bitácora que coincidan con la fecha ingresada por el usuario.
     """
     while True:
-        fecha_input = input("Ingrese la fecha a buscar (YYYY-MM-DD) o CANCELAR para regresar: ").strip()
-        if fecha_input.upper() == "CANCELAR":
+        fechaInput = input("Ingrese la fecha a buscar (YYYY-MM-DD) o CANCELAR para regresar: ").strip()
+        if fechaInput.upper() == "CANCELAR":
             print("Búsqueda cancelada.")
             return
         try:
-            datetime.strptime(fecha_input, "%Y-%m-%d")
-            buscarConFecha(fecha_input, bitacora)
+            datetime.strptime(fechaInput, "%Y-%m-%d")
+            buscarConFecha(fechaInput, bitacora)
             return
         except ValueError:
             print("Formato de fecha inválido. Por favor ingrese la fecha en formato YYYY-MM-DD.")
