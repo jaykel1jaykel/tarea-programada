@@ -1,4 +1,2 @@
 int -> entero
 if -> si
-while -> mientras
-return -> debolver

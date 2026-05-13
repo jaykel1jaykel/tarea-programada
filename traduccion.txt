@@ -1,9 +1,1051 @@
-def sumarDigitosMultiplos(n, m):
-    res = 0
-    n1 = 0
-    mientras n>0:
-        n1 = n%10
-        si n1%m == 0:
-            res += n1 
-        n //= 10 
-    debolver res 
+# Elaborado por :
+# Fecha de creacion:
+# Ultima modificacion:
+# Version de python:
+
+#Librerias
+importar re
+
+# FUNCIONES DE MEDICAMENTOS
+
+definir limpiarComillas(lista):
+    """
+    Funcionamiento: Limpia comillas, espacios y convierte numeros.
+    Entradas:
+    lista(lista): lista con datos del CSV.
+    Salidas:
+    nuevaLista(lista): lista limpia y convertida.
+    """
+    nuevaLista = []
+    para palabra en lista:
+        nuevaPalabra = ""
+        para letra en palabra:
+            si letra == '"':
+                continuar
+            sino:
+                nuevaPalabra += letra
+        nuevaPalabra = " ".unirtexto(nuevaPalabra.separar())
+        si nuevaPalabra.esdigito():
+            nuevaLista += [entero(nuevaPalabra)]
+        sino:
+            numero = Verdadero
+            puntos = 0
+            para caracter en nuevaPalabra:
+                si caracter == ".":
+                    puntos += 1
+                sinosi caracter.esdigito() == Falso:
+                    numero = Falso
+            si numero == Verdadero y puntos <= 1 y nuevaPalabra != "":
+                nuevaLista += [decimal(nuevaPalabra)]
+            sino:
+                nuevaLista += [nuevaPalabra.title()]
+    retornar nuevaLista
+
+definir normalizarMedicamento(nombre):
+    """
+    Funcionamiento: Limpia espacios y normaliza nombres de medicamentos.
+    Entradas:
+    nombre(texto): nombre del medicamento.
+    Salidas:
+    nombre(texto): nombre limpio.
+    """
+    nombre = " ".unirtexto(nombre.separar())
+    retornar nombre.title()
+
+
+definir validarCodigoMedicamento(codigo):
+    """
+    Funcionamiento: Valida el formato del codigo del medicamento.
+    Entradas:
+    codigo(texto): codigo a revisar.
+    Salidas:
+    Verdadero o Falso segun el formato sea valido.
+    """
+    patron = r"^[A-Z]{3}-[0-9]{3}[a-z]{2}$"
+    si re.fullmatch(patron, codigo):
+        retornar Verdadero
+    retornar Falso
+
+
+definir cargarMedicamentos(inventario,nombreArchivo):
+    """
+    Funcionamiento: Carga medicamentos desde un archivo CSV.
+    Entradas:
+    inventario(lista): lista donde se guardan medicamentos.
+    nombreArchivo(texto): nombre del archivo CSV.
+    Salidas:
+    inventario(lista): lista actualizada.
+    """
+    con abrir(nombreArchivo,"r") como archivo:
+        para linea en archivo:
+            linea = linea.limpiar()
+            medicamentos = linea.separar(",")
+            medicamentos = limpiarComillas(medicamentos)
+            si longitud(medicamentos) != 4:
+                continuar
+            medicamentos[0] = normalizarMedicamento(medicamentos[0])
+            si validarCodigoMedicamento(medicamentos[1]) == Falso:
+                continuar
+            si isinstance(medicamentos[2],entero) == Falso:
+                continuar
+            si isinstance(medicamentos[3],decimal) == Falso y isinstance(medicamentos[3],entero) == Falso:
+                continuar
+            inventario.agregar(medicamentos)
+    imprimir("Medicamentos cargados de manera exitosa.")
+    retornar inventario
+
+    
+definir cargarMedicamentosAux(inventario):
+    mientras Verdadero:
+        intentar:
+            mientras Verdadero:
+                nombreArchivo = entrada("Ingrese el nombre del CSV donde se encuentran los medicamentos: ")
+                f =abrir(nombreArchivo,"r")
+                inventario= cargarMedicamentos(inventario,nombreArchivo)
+                si inventario == [] :
+                    imprimir("El archivo debe tener medicamentos guardados")
+                    continuar
+                romper
+            retornar inventario
+        excepto FileNotFoundError:
+            imprimir("El archivo ingresado no existe")
+            continuar
+
+
+# FUNCIONES DEL PABELLON
+
+
+definir crearPabellon(pabellon):
+    """
+    Funcionamiento: Crea la matriz del pabellon con camas libres.
+    Entradas:
+    pabellon(lista): matriz vacia del pabellon.
+    Salidas:
+    pabellon(lista): matriz llena con 'Libre'.
+    """
+    mientras Verdadero:
+        fila = entrada("Ingrese el numero de secciones: ")
+        si fila.esdigito() == Falso:
+            imprimir("Ingrese un numero entero.")
+            continuar
+        fila = entero(fila)
+        si fila <= 0:
+            imprimir("Debe ser mayor que 0.")
+            continuar
+        romper
+    mientras Verdadero:
+        columna = entrada("Ingrese el numero de camas por seccion: ")
+        si columna.esdigito() == Falso:
+            imprimir("Ingrese un numero entero.")
+            continuar
+        columna = entero(columna)
+        si columna <= 0:
+            imprimir("Debe ser mayor que 0.")
+            continuar
+        romper
+    contFila = 0
+    mientras contFila < fila:
+        filas = []
+        contColumnas = 0
+        mientras contColumnas < columna:
+            filas += ["Libre"]
+            contColumnas += 1
+        pabellon.agregar(filas)
+        contFila += 1
+    retornar pabellon
+
+
+definir visualizarPabellon(pabellon):
+    """
+    Funcionamiento: Muestra el contenido actual del pabellon.
+    Entradas:
+    pabellon(lista): matriz con las camas.
+    Salidas:
+    No retorna nada, solo imprime el pabellon.
+    """
+    si pabellon == []:
+        imprimir("No existe un pabellon creado.")
+        retornar
+    para fila en pabellon:
+        para cama en fila:
+            imprimir("[", cama, "]", end=" ")
+        imprimir()
+    retornar
+
+
+# FUNCIONES DE PACIENTES
+
+
+definir validarExpediente(expediente):
+    """
+    Funcionamiento: Valida el formato del expediente del paciente.
+    Entradas:
+    expediente(texto): numero de expediente.
+    Salidas:
+    Verdadero o Falso segun sea valido.
+    """
+    patron = r"^[A-Z]{3}#[0-9]{4}$"
+    si re.fullmatch(patron, expediente):
+        retornar Verdadero
+    retornar Falso
+
+
+definir normalizarNombre(nombre):
+    """
+    Funcionamiento: Ordena el nombre y lo deja en formato titulo.
+    Entradas:
+    nombre(texto): nombre completo del paciente.
+    Salidas:
+    resultado(texto): nombre normalizado.
+    """
+    palabras = nombre.separar()
+    resultado = ""
+    para palabra en palabras:
+        nuevaPalabra = palabra[0].mayusculas() + palabra[1:].minusculas()
+        resultado += nuevaPalabra + " "
+    retornar resultado.limpiar()
+
+
+definir expedienteRepetido(expediente, pacientesRegistrados):
+    """
+    Funcionamiento: Revisa si un expediente ya fue registrado.
+    Entradas:
+    expediente(texto): numero de expediente.
+    pacientesRegistrados(lista): lista de pacientes.
+    Salidas:
+    Verdadero o Falso segun ya exista.
+    """
+    para paciente en pacientesRegistrados:
+        si paciente[1] == expediente:
+            retornar Verdadero
+    retornar Falso
+
+
+definir pedirExpediente(pacientesRegistrados):
+    """
+    Funcionamiento: Pide y valida el expediente del paciente.
+    Entradas:
+    pacientesRegistrados(lista): pacientes ya guardados.
+    Salidas:
+    expediente(texto) o Nulo si el usuario cancela.
+    """
+    mientras Verdadero:
+        expediente = entrada("Ingrese el expediente o escriba CANCELAR: ")
+        si expediente.mayusculas() == "CANCELAR":
+            retornar Nulo
+        si validarExpediente(expediente) == Falso:
+            imprimir("Formato invalido. Ejemplo: AAA#0000")
+            continuar
+        si expedienteRepetido(expediente, pacientesRegistrados):
+            imprimir("El expediente ya existe.")
+            continuar
+        retornar expediente
+
+
+definir pedirNombre():
+    """
+    Funcionamiento: Pide el nombre del paciente y lo normaliza.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    nombre(texto): nombre limpio y ordenado.
+    """
+    mientras Verdadero:
+        nombre = entrada("Ingrese el nombre completo: ")
+        si nombre.limpiar() == "":
+            imprimir("Ingrese un nombre valido.")
+            continuar
+        retornar normalizarNombre(nombre)
+
+
+definir pedirPrioridad():
+    """
+    Funcionamiento: Pide la prioridad del paciente.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    prioridad(entero): valor entre 1 y 3.
+    """
+    mientras Verdadero:
+        prioridad = entrada("Ingrese la prioridad (1-3): ")
+        si prioridad.esdigito() == Falso:
+            imprimir("Ingrese un numero entero.")
+            continuar
+        prioridad = entero(prioridad)
+        si prioridad < 1 o prioridad > 3:
+            imprimir("La prioridad debe ser del 1 al 3.")
+            continuar
+        retornar prioridad
+
+
+definir pedirSeveridad():
+    """
+    Funcionamiento: Pide la severidad del paciente.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    severidad(entero): valor entre 1 y 10.
+    """
+    mientras Verdadero:
+        severidad = entrada("Ingrese la severidad (1-10): ")
+        si severidad.esdigito() == Falso:
+            imprimir("Ingrese un numero entero.")
+            continuar
+        severidad = entero(severidad)
+        si severidad < 1 o severidad > 10:
+            imprimir("La severidad debe ser entre 1 y 10.")
+            continuar
+        retornar severidad
+
+
+definir pedirPeso():
+    """
+    Funcionamiento: Pide el peso del paciente.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    peso(decimal): peso valido mayor que cero.
+    """
+    mientras Verdadero:
+        peso = entrada("Ingrese el peso del paciente: ")
+        numero = Verdadero
+        puntos = 0
+        para caracter en peso:
+            si caracter == ".":
+                puntos += 1
+            sinosi caracter.esdigito() == Falso:
+                numero = Falso
+        si numero == Falso o puntos > 1:
+            imprimir("Ingrese un peso valido.")
+            continuar
+        peso = decimal(peso)
+        si peso <= 0:
+            imprimir("El peso debe ser mayor que 0.")
+            continuar
+        retornar peso
+
+
+definir ubicarPaciente(fila, columna, expediente, pabellon):
+    """
+    Funcionamiento: Ubica el expediente en una cama libre.
+    Entradas:
+    fila(entero): fila elegida.
+    columna(entero): columna elegida.
+    expediente(texto): numero de expediente.
+    pabellon(lista): matriz de camas.
+    Salidas:
+    pabellon(lista), Falso o 'Ocupado' segun el resultado.
+    """
+    si fila < 1 o fila > longitud(pabellon):
+        retornar Falso
+    si columna < 1 o columna > longitud(pabellon[0]):
+        retornar Falso
+    si pabellon[fila - 1][columna - 1] != "Libre":
+        retornar "Ocupado"
+    pabellon[fila - 1][columna - 1] = expediente
+    retornar pabellon
+
+
+definir pedirUbicacion(expediente, pabellon):
+    """
+    Funcionamiento: Pide la fila y la columna para ubicar al paciente.
+    Entradas:
+    expediente(texto): numero de expediente.
+    pabellon(lista): matriz de camas.
+    Salidas:
+    pabellon(lista): matriz actualizada.
+    """
+    mientras Verdadero:
+        visualizarPabellon(pabellon)
+        fila = entrada("Ingrese la fila: ")
+        columna = entrada("Ingrese la columna: ")
+        si fila.esdigito() == Falso o columna.esdigito() == Falso:
+            imprimir("Fila y columna deben ser numeros enteros.")
+            continuar
+        fila = entero(fila)
+        columna = entero(columna)
+        resultado = ubicarPaciente(fila, columna, expediente, pabellon)
+        si resultado == Falso:
+            imprimir("La ubicacion no existe.")
+            continuar
+        sinosi resultado == "Ocupado":
+            imprimir("La cama esta ocupada.")
+            continuar
+        retornar resultado
+
+
+definir ingresarPacientesAux(pacientesRegistrados, pabellon):
+    """
+    Funcionamiento: Recolecta datos y registra un paciente.
+    Entradas:
+    pacientesRegistrados(lista): lista de pacientes.
+    pabellon(lista): matriz de camas.
+    Salidas:
+    pacientesRegistrados(lista), pabellon(lista) actualizados.
+    """
+    si pabellon == []:
+        imprimir("Primero debe crear el pabellon.")
+        retornar pacientesRegistrados, pabellon
+    expediente = pedirExpediente(pacientesRegistrados)
+    si expediente == Nulo:
+        retornar pacientesRegistrados, pabellon
+    nombre = pedirNombre()
+    prioridad = pedirPrioridad()
+    severidad = pedirSeveridad()
+    peso = pedirPeso()
+    pabellon = pedirUbicacion(expediente, pabellon)
+    paciente = [nombre, expediente, prioridad, severidad, peso]
+    pacientesRegistrados.agregar(paciente)
+    imprimir("Paciente registrado correctamente.")
+    retornar pacientesRegistrados, pabellon
+
+
+# SUMINISTRAR MEDICAMENTOS
+
+
+definir buscarMedicamento(nombreMedicamento, inventario):
+    """
+    Funcionamiento: Busca un medicamento por nombre.
+    Entradas:
+    nombreMedicamento(texto): nombre a buscar.
+    inventario(lista): lista de medicamentos.
+    Salidas:
+    medicamento(lista) o Nulo si no existe.
+    """
+    para medicamento en inventario:
+        si medicamento[0].minusculas() == nombreMedicamento.minusculas():
+            retornar medicamento
+    retornar Nulo
+
+
+definir calcularDosis(peso, severidad):
+    """
+    Funcionamiento: Calcula la dosis del medicamento.
+    Entradas:
+    peso(decimal): peso del paciente.
+    severidad(entero): severidad del paciente.
+    Salidas:
+    dosis(decimal): dosis calculada.
+    """
+    dosis = (peso * 0.5) + (severidad * 10)
+    retornar dosis
+
+
+definir calcularFactura(dosis, prioridad, precio):
+    """
+    Funcionamiento: Calcula subtotal, ajuste y total.
+    Entradas:
+    dosis(decimal): dosis calculada.
+    prioridad(entero): prioridad del paciente.
+    precio(decimal): precio unitario.
+    Salidas:
+    subtotal, ajuste y total.
+    """
+    subtotal = dosis * precio
+    ajuste = 0
+    si prioridad == 1:
+        ajuste -= subtotal * 0.10
+    sinosi prioridad == 3:
+        ajuste += subtotal * 0.20
+    total = subtotal + ajuste
+    retornar subtotal, ajuste, total
+
+
+definir suministrarMedicamentos(inventario):
+    """
+    Funcionamiento: Busca el medicamento y descuenta stock.
+    Entradas:
+    inventario(lista): lista de medicamentos.
+    Salidas:
+    inventario(lista) actualizado.
+    """
+    nombreMedicamento = entrada("Ingrese el nombre del medicamento: ")
+    medicamento = buscarMedicamento(nombreMedicamento, inventario)
+    si medicamento == Nulo:
+        imprimir("El medicamento no existe.")
+        retornar inventario
+    si medicamento[2] <= 0:
+        imprimir("No hay stock disponible.")
+        retornar inventario
+    peso = pedirPeso()
+    severidad = pedirSeveridad()
+    prioridad = pedirPrioridad()
+    dosis = calcularDosis(peso, severidad)
+    si medicamento[2] - dosis < 0:
+        imprimir("No hay suficiente stock.")
+        retornar inventario
+    subtotal, ajuste, total = calcularFactura(dosis, prioridad, medicamento[3])
+    medicamento[2] -= entero(dosis)
+    imprimir("Dosis:", dosis)
+    imprimir("Subtotal:", subtotal)
+    imprimir("Ajuste:", ajuste)
+    imprimir("Total:", total)
+    si medicamento[2] <= 5:
+        imprimir("ALERTA: Punto de reorden alcanzado.")
+    retornar inventario
+
+
+# PROCESAR ALTA
+
+
+definir buscarPaciente(expediente, pacientes):
+    """
+    Funcionamiento: Busca un paciente por expediente.
+    Entradas:
+    expediente(texto): numero de expediente.
+    pacientes(lista): lista de pacientes.
+    Salidas:
+    paciente(lista) o Nulo si no existe.
+    """
+    para paciente en pacientes:
+        si paciente[1] == expediente:
+            retornar paciente
+    retornar Nulo
+
+
+definir liberarCama(expediente, pabellon):
+    """
+    Funcionamiento: Libera la cama donde esta el expediente.
+    Entradas:
+    expediente(texto): numero de expediente.
+    pabellon(lista): matriz de camas.
+    Salidas:
+    pabellon(lista) o Falso si no se encuentra.
+    """
+    fila = 0
+    mientras fila < longitud(pabellon):
+        columna = 0
+        mientras columna < longitud(pabellon[fila]):
+            si pabellon[fila][columna] == expediente:
+                pabellon[fila][columna] = "Libre"
+                retornar pabellon
+            columna += 1
+        fila += 1
+    retornar Falso
+
+
+definir pedirFechaAlta():
+    """
+    Funcionamiento: Pide la fecha de alta o acepta HOY.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    fecha(texto): fecha valida o la palabra HOY.
+    """
+    mientras Verdadero:
+        fecha = entrada("Ingrese la fecha dd/mm/aaaa o escriba HOY: ")
+        si fecha.mayusculas() == "HOY":
+            retornar "HOY"
+        patron = r"^[0-9]{2}/[0-9]{2}/[0-9]{4}$"
+        si re.fullmatch(patron, fecha):
+            retornar fecha
+        imprimir("Formato invalido.")
+
+
+definir procesarAlta(bitacoraHistorica, pacientesRegistrados, pabellon):
+    """
+    Funcionamiento: Libera la cama y guarda la alta en la bitacora.
+    Entradas:
+    bitacoraHistorica(lista): historial de altas.
+    pacientesRegistrados(lista): lista de pacientes.
+    pabellon(lista): matriz de camas.
+    Salidas:
+    bitacoraHistorica(lista), pabellon(lista) actualizados.
+    """
+    expediente = entrada("Ingrese el expediente del paciente: ")
+    paciente = buscarPaciente(expediente, pacientesRegistrados)
+    si paciente == Nulo:
+        imprimir("El paciente no existe.")
+        retornar bitacoraHistorica, pabellon
+    confirmacion = entrada("Desea confirmar el alta? (S/N): ")
+    si confirmacion.mayusculas() != "S":
+        imprimir("Alta cancelada.")
+        retornar bitacoraHistorica, pabellon
+    resultado = liberarCama(expediente, pabellon)
+    si resultado == Falso:
+        imprimir("El paciente no se encuentra en el pabellon.")
+        retornar bitacoraHistorica, pabellon
+    fechaAlta = pedirFechaAlta()
+    historial = (paciente[1], paciente[0], fechaAlta)
+    bitacoraHistorica.agregar(historial)
+    imprimir("Alta procesada correctamente.")
+    retornar bitacoraHistorica, pabellon
+
+
+# ADMINISTRACION
+
+
+definir guardarPabellon(pabellon):
+    """
+    Funcionamiento: Guarda el pabellon en un archivo de texto.
+    Entradas:
+    pabellon(lista): matriz de camas.
+    Salidas:
+    "Hola" luego de guardar el archivo.
+    """
+    nomArchivo = entrada("Ingrese el nombre del archivo: ")
+    con abrir(nomArchivo, "w") como arvhivo:
+        contFil = 1
+        contColum = 1
+        para seccion en pabellon:
+            para cama en seccion:
+                si cama == "Libre":
+                    arvhivo.escribir("En la fila " + texto(contFil) + " y en la columna " + texto(contColum) + " se encuebtra libre.\n")
+                sino:
+                    arvhivo.escribir("En la fila " + texto(contFil) + " y en la columna " + texto(contColum) + " se encuebtra el paciente" + texto(cama) + ".\n")
+                contColum += 1
+            contFil += 1
+    imprimir("pabellon guardado exitosamente")
+    retornar "Hola"
+
+
+definir redimencionarPabellon(pabellon):
+    """
+    Funcionamiento: Crea un pabellon nuevo y permite guardar el anterior.
+    Entradas:
+    pabellon(lista): matriz actual.
+    Salidas:
+    nuevoPabellon(lista) o Nulo si se cancela.
+    """
+    nuevoPabellon = []
+    archivo = ""
+    nuevoPabellon = crearPabellon(nuevoPabellon)
+    confirmacion = entrada("Esta seguro de que quiere redimencionar el pabellon, ya que se pueden eliminar datos(SI/NO): ")
+    si confirmacion.mayusculas() == "NO":
+        retornar
+    guardar = entrada("desea guardar el antiguo pabellon(SI/NO): ")
+    si guardar.mayusculas() == "SI":
+        archivo = guardarPabellon(pabellon)
+    imprimir(archivo)
+    retornar nuevoPabellon
+
+
+# REPORTE ESTADISTICO
+
+
+definir reporteEstadistico(bitacoraHistorica):
+    """
+    Funcionamiento: Muestra la bitacora y la semana con mas altas.
+    Entradas:
+    bitacoraHistorica(lista): historial de altas.
+    Salidas:
+    No retorna nada, solo imprime resultados.
+    """
+    si bitacoraHistorica == []:
+        imprimir("No hay pacientes dados de alta.")
+        retornar
+    imprimir("\nBITACORA HISTORICA")
+    para paciente en bitacoraHistorica:
+        imprimir("Expediente:", paciente[0])
+        imprimir("Nombre:", paciente[1])
+        imprimir("Fecha:", paciente[2])
+        imprimir()
+    semanas = {}
+    mayor = 0
+    semanaMayor = ""
+    para paciente en bitacoraHistorica:
+        fecha = paciente[2]
+        si fecha == "HOY":
+            continuar
+        partes = fecha.separar("/")
+        dia = entero(partes[0])
+        semana = ((dia - 1) // 7) + 1
+        llave = "Semana " + texto(semana)
+        si llave en semanas:
+            semanas[llave] += 1
+        sino:
+            semanas[llave] = 1
+    para llave en semanas:
+        si semanas[llave] > mayor:
+            mayor = semanas[llave]
+            semanaMayor = llave
+    si semanaMayor != "":
+        imprimir("La semana con mas altas fue:", semanaMayor)
+
+
+# SUBMENU ADMINISTRACION
+
+
+definir menuAdministracion(pabellon, inventario, pacientesRegistrados, bitacora):
+    """
+    Funcionamiento: Muestra el submenu de administracion.
+    Entradas:
+    pabellon(lista): matriz de camas.
+    inventario(lista): lista de medicamentos.
+    pacientesRegistrados(lista): lista de pacientes.
+    bitacora(lista): historial de altas.
+    Salidas:
+    pabellon(lista), inventario(lista) actualizados.
+    """
+    mientras Verdadero:
+        subopcion = entrada(
+        "\nA: Redimensionar pabellon\n"
+        "B: Agregar medicamento\n"
+        "C: Modificar stock\n"
+        "D: Modificar precio\n"
+        "E: Buscar paciente\n"
+        "F: Estadias\n"
+        "0: Salir\n"
+        "Ingrese una opcion: "
+        )
+        si subopcion.mayusculas() == "A":
+            nuevo = redimencionarPabellon(pabellon)
+            si nuevo != Nulo:
+                pabellon = nuevo
+        sinosi subopcion.mayusculas() == "B":
+            inventario = agregarMedicamento(inventario)
+        sinosi subopcion.mayusculas() == "C":
+            inventario = modificarStock(inventario)
+        sinosi subopcion.mayusculas() == "D":
+            inventario = modificarPrecio(inventario)
+        sinosi subopcion.mayusculas() == "E":
+            buscarPacienteSistema(pacientesRegistrados, pabellon, bitacora)
+        sinosi subopcion.mayusculas() == "F":
+            menuEstadias(pabellon, pacientesRegistrados)
+        sinosi subopcion == "0":
+            retornar pabellon, inventario
+        sino:
+            imprimir("Opcion invalida.")
+
+
+# AGREGAR MEDICAMENTO
+
+
+definir medicamentoExiste(nombre, inventario):
+    """
+    Funcionamiento: Revisa si el medicamento ya existe.
+    Entradas:
+    nombre(texto): nombre del medicamento.
+    inventario(lista): lista de medicamentos.
+    Salidas:
+    Verdadero o Falso segun exista.
+    """
+    para medicamento en inventario:
+        si medicamento[0].minusculas() == nombre.minusculas():
+            retornar Verdadero
+    retornar Falso
+
+
+definir agregarMedicamentoAux():
+    """
+    Funcionamiento: Pide y valida el codigo del medicamento.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    codigo(texto): codigo valido.
+    """
+    mientras Verdadero:
+        codigo = entrada("Ingrese el codigo o 'CANCELAR' para salir: ")
+        si codigo.mayusculas() == "CANCELAR":
+            retornar Falso
+        si validarCodigoMedicamento(codigo) == Falso:
+            imprimir("Codigo invalido.")
+            continuar
+        retornar codigo
+
+
+definir agregarMedicamento(inventario):
+    """
+    Funcionamiento: Agrega un medicamento al inventario.
+    Entradas:
+    inventario(lista): lista de medicamentos.
+    Salidas:
+    inventario(lista) actualizado.
+    """
+    nombre = entrada("Ingrese el nombre del medicamento o 'CANCELAR' para salir: ")
+    si nombre.mayusculas() == "CANCELAR":
+        retornar inventario
+    si medicamentoExiste(nombre, inventario):
+        imprimir("El medicamento ya existe.")
+        retornar inventario
+    codigo = agregarMedicamentoAux()
+    si codigo == Falso:
+        retornar inventario
+    mientras Verdadero:
+        stock = entrada("Ingrese el stock o 'CANCELAR' para salir: ")
+        si stock.esdigito() == Falso:
+            imprimir("Ingrese un numero entero.")
+            continuar
+        stock = entero(stock)
+        si stock < 0:
+            imprimir("No puede ser negativo.")
+            continuar
+        romper
+    mientras Verdadero:
+        precio = entrada("Ingrese el precio o 'CANCELAR' para salir: ")
+        si precio.mayusculas() == "CANCELAR":
+            retornar inventario
+        intentar:
+            precio = decimal(precio)
+            si precio <= 0:
+                imprimir("Debe ser mayor que 0.")
+                continuar
+            romper
+        excepto:
+            imprimir("Precio invalido.")
+    medicamento = [nombre, codigo, stock, precio]
+    inventario.agregar(medicamento)
+    imprimir("Medicamento agregado correctamente.")
+    retornar inventario
+
+
+# MODIFICAR STOCK
+
+definir modificarStockAux(inventario):
+    """
+    Funcionamiento: Pide la cantidad para modificar el stock.
+    Entradas:
+    medicamento(lista): medicamento seleccionado.
+    Salidas:
+    cantidad(entero): cambio de stock permitido.
+    """
+    mientras Verdadero:
+        nombre = entrada("Ingrese el medicamento o 'CANCELAR' para salir: ")
+        si nombre.mayusculas == "CANCELAR":
+            retornar inventario
+        cantidad = entrada("Ingrese la cantidad o 'CANCELAR' para salir: ")
+        si cantidad.mayusculas() == "CANCELAR":
+            retornar inventario
+        si cantidad.lstrip("-").esdigito() == Falso:
+            imprimir("Ingrese un numero entero.")
+            continuar
+        cantidad = entero(cantidad)
+        medicamento =buscarMedicamento(nombre, inventario)
+        si medicamento == Nulo:
+            imprimir("El medicamento no existe.")
+            retornar inventario
+        si cantidad <= 0:
+            imprimir("La cantidad ingresada tiene que ser mayor a 0.")
+        inventario = modificarStock(inventario,medicamento,cantidad)
+        retornar inventario
+
+
+definir modificarStock(inventario,medicamento,cantidad):
+    """
+    Funcionamiento: Modifica el stock de un medicamento.
+    Entradas:
+    inventario(lista): lista de medicamentos.
+    Salidas:
+    inventario(lista) actualizado.
+    """
+    si medicamento == Nulo:
+        imprimir("El medicamento no existe.")
+        retornar inventario
+    medicamento[2] += cantidad
+    imprimir("Stock actualizado.")
+    retornar inventario
+
+
+# MODIFICAR PRECIO
+
+
+definir modificarPrecioAux():
+    """
+    Funcionamiento: Pide el nuevo precio del medicamento.
+    Entradas:
+    No recibe entradas.
+    Salidas:
+    precio(decimal): nuevo precio valido.
+    """
+    mientras Verdadero:
+        precio = entrada("Ingrese el nuevo precio: ")
+        intentar:
+            precio = decimal(precio)
+            si precio <= 0:
+                imprimir("Debe ser mayor que 0.")
+                continuar
+            retornar precio
+        excepto:
+            imprimir("Precio invalido.")
+
+
+definir modificarPrecio(inventario):
+    """
+    Funcionamiento: Cambia el precio de un medicamento.
+    Entradas:
+    inventario(lista): lista de medicamentos.
+    Salidas:
+    inventario(lista) actualizado.
+    """
+    nombre = entrada("Ingrese el medicamento: ")
+    medicamento = buscarMedicamento(nombre, inventario)
+    si medicamento == Nulo:
+        imprimir("El medicamento no existe.")
+        retornar inventario
+    precio = modificarPrecioAux()
+    medicamento[3] = precio
+    imprimir("Precio actualizado.")
+    retornar inventario
+
+
+# BUSCAR PACIENTE
+
+
+definir buscarUbicacionPaciente(expediente, pabellon):
+    """
+    Funcionamiento: Busca la ubicacion del expediente en el pabellon.
+    Entradas:
+    expediente(texto): numero de expediente.
+    pabellon(lista): matriz de camas.
+    Salidas:
+    tupla(fila,columna) o Nulo si no existe.
+    """
+    fila = 0
+    mientras fila < longitud(pabellon):
+        columna = 0
+        mientras columna < longitud(pabellon[fila]):
+            si pabellon[fila][columna] == expediente:
+                retornar fila, columna
+            columna += 1
+        fila += 1
+    retornar Nulo
+
+
+definir buscarPacienteSistema(pacientesRegistrados, pabellon, bitacora):
+    """
+    Funcionamiento: Busca un paciente en el pabellon o en la bitacora.
+    Entradas:
+    pacientesRegistrados(lista): lista de pacientes.
+    pabellon(lista): matriz de camas.
+    bitacora(lista): historial de altas.
+    Salidas:
+    No retorna nada, solo muestra el resultado.
+    """
+    expediente = entrada("Ingrese el expediente: ")
+    paciente = buscarPaciente(expediente, pacientesRegistrados)
+    si paciente == Nulo:
+        imprimir("El paciente no existe.")
+        retornar
+    ubicacion = buscarUbicacionPaciente(expediente, pabellon)
+    si ubicacion != Nulo:
+        imprimir("Paciente internado.")
+        imprimir("Nombre:", paciente[0])
+        imprimir("Prioridad:", paciente[2])
+        imprimir("Fila:", ubicacion[0] + 1)
+        imprimir("Columna:", ubicacion[1] + 1)
+        retornar
+    para alta en bitacora:
+        si alta[0] == expediente:
+            imprimir("Paciente dado de alta.")
+            imprimir("Nombre:", alta[1])
+            imprimir("Fecha:", alta[2])
+            retornar
+    imprimir("El paciente no se encontro.")
+
+
+# ESTADIAS
+
+
+definir menuEstadias(pabellon, pacientesRegistrados):
+    """
+    Funcionamiento: Muestra el menu de busqueda por ubicacion.
+    Entradas:
+    pabellon(lista): matriz de camas.
+    pacientesRegistrados(lista): lista de pacientes.
+    Salidas:
+    No retorna nada, solo llama a otra funcion.
+    """
+    opcion = entrada(
+    "\n1. Buscar fila\n"
+    "2. Buscar columna\n"
+    "3. Buscar ubicacion puntual\n"
+    "Ingrese opcion: "
+    )
+    si opcion == "1":
+        buscarFila(pabellon, pacientesRegistrados)
+    sinosi opcion == "2":
+        buscarColumna(pabellon, pacientesRegistrados)
+    sinosi opcion == "3":
+        buscarUbicacionPuntual(pabellon, pacientesRegistrados)
+    sino:
+        imprimir("Opcion invalida.")
+
+
+definir buscarFila(pabellon, pacientesRegistrados):
+    """
+    Funcionamiento: Muestra los pacientes de una fila.
+    Entradas:
+    pabellon(lista): matriz de camas.
+    pacientesRegistrados(lista): lista de pacientes.
+    Salidas:
+    No retorna nada, solo imprime la fila.
+    """
+    fila = entrada("Ingrese la fila: ")
+    si fila.esdigito() == Falso:
+        imprimir("Ingrese un numero.")
+        retornar
+    fila = entero(fila)
+    si fila < 1 o fila > longitud(pabellon):
+        imprimir("La fila no existe.")
+        retornar
+    fila -= 1
+    para cama en pabellon[fila]:
+        si cama == "Libre":
+            imprimir("Libre")
+        sino:
+            paciente = buscarPaciente(cama, pacientesRegistrados)
+            imprimir(paciente)
+
+
+definir buscarColumna(pabellon, pacientesRegistrados):
+    """
+    Funcionamiento: Muestra los pacientes de una columna.
+    Entradas:
+    pabellon(lista): matriz de camas.
+    pacientesRegistrados(lista): lista de pacientes.
+    Salidas:
+    No retorna nada, solo imprime la columna.
+    """
+    columna = entrada("Ingrese la columna: ")
+    si columna.esdigito() == Falso:
+        imprimir("Ingrese un numero.")
+        retornar
+    columna = entero(columna)
+    si columna < 1 o columna > longitud(pabellon[0]):
+        imprimir("La columna no existe.")
+        retornar
+    columna -= 1
+    fila = 0
+    mientras fila < longitud(pabellon):
+        cama = pabellon[fila][columna]
+        si cama == "Libre":
+            imprimir("Libre")
+        sino:
+            paciente = buscarPaciente(cama, pacientesRegistrados)
+            imprimir(paciente)
+        fila += 1
+
+
+definir buscarUbicacionPuntual(pabellon, pacientesRegistrados):
+    """
+    Funcionamiento: Muestra el paciente de una ubicacion puntual.
+    Entradas:
+    pabellon(lista): matriz de camas.
+    pacientesRegistrados(lista): lista de pacientes.
+    Salidas:
+    No retorna nada, solo imprime el resultado.
+    """
+    fila = entrada("Ingrese la fila: ")
+    columna = entrada("Ingrese la columna: ")
+    si fila.esdigito() == Falso o columna.esdigito() == Falso:
+        imprimir("Datos invalidos.")
+        retornar
+    fila = entero(fila)
+    columna = entero(columna)
+    si fila < 1 o fila > longitud(pabellon):
+        imprimir("Fila invalida.")
+        retornar
+    si columna < 1 o columna > longitud(pabellon[0]):
+        imprimir("Columna invalida.")
+        retornar
+    cama = pabellon[fila - 1][columna - 1]
+    si cama == "Libre":
+        imprimir("La cama esta libre.")
+        retornar
+    paciente = buscarPaciente(cama, pacientesRegistrados)
+    imprimir(paciente)
+
+definir visualizarInventario(inventario):
+    para i en inventario:
+        imprimir(i)
+    

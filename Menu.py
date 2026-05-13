@@ -1,3 +1,8 @@
+# Elaborado por: Hillary Matinez, Jaykel Miranda
+# Fecha de creacion: 24-04-2026
+# Ultima modificacion:12-05-2026
+# version de pyrhon:3.14
+
 from Funciones import *
 def menu():
     tokens = []

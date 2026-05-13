@@ -1,4 +1,4 @@
-# Elaborado por:
+# Elaborado por: Hillary Martinez, Jaykel Miranda
 # Fecha de creacion:
 # Ultima modificacion:
 # version de python:
@@ -630,7 +630,8 @@ def buscarConFecha(fechaBuscar, bitacora):
     """
     encontrado = False
     for i in bitacora:
-        fechaRegistro = i[0]  # solo la fecha
+        fechaCompleta = i[0]  # solo la fecha
+        fechaRegistro = fechaCompleta.strftime("%Y-%m-%d")
         if fechaRegistro == fechaBuscar:
             fechaCompleta = i[0]
             print(f"{fechaCompleta} - {i[1]}")
